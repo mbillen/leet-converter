@@ -45,7 +45,7 @@ public class Converter implements Runnable {
     
     @Override
     public void run() {
-        frame = new JFrame("L33T Converter 0.1");
+        frame = new JFrame("L33T Converter 0.1.1");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(createWestPanel(), BorderLayout.WEST);
         frame.add(createCenterPanel(), BorderLayout.CENTER);
@@ -172,11 +172,15 @@ public class Converter implements Runnable {
             Map<String, String> m = comboRegistry.entrySet().stream().collect(
                 Collectors.toMap(entry -> entry.getKey().name(), entry -> (String)entry.getValue().getSelectedItem()));
             
-            String s = raw.getText().toUpperCase();
-            for(Map.Entry<String, String> me : m.entrySet()) 
-                s = s.replace(me.getKey(),  me.getValue());
-            
-            leet.setText(s);
+            leet.setText(
+                raw.getText()
+                    .toUpperCase()
+                    .chars()
+                    .mapToObj(c -> {
+                        String ch = String.valueOf((char)c);
+                        return m.computeIfAbsent(ch, i -> ch);
+                    })
+                    .collect(Collectors.joining()));
         }
     };
     

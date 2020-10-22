@@ -2,8 +2,8 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>C:\dev\workspace\LeetConverter\launch4j\LeetConverter.jar</jar>
-  <outfile>C:\dev\workspace\LeetConverter\launch4j\LeetConverter.exe</outfile>
+  <jar>C:\Users\mbillen\GIT\mbillen-github\leet-converter\launch4j\LeetConverter.jar</jar>
+  <outfile>C:\Users\mbillen\GIT\mbillen-github\leet-converter\launch4j\LeetConverter.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
@@ -13,7 +13,7 @@
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon>C:\dev\workspace\LeetConverter\launch4j\LeetConverter.ico</icon>
+  <icon>C:\Users\mbillen\GIT\mbillen-github\leet-converter\launch4j\LeetConverter.ico</icon>
   <jre>
     <path>%JAVA_HOME%</path>
     <bundledJre64Bit>false</bundledJre64Bit>
