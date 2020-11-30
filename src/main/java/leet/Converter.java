@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -19,12 +21,16 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class Converter implements Runnable {
     JFrame frame;
@@ -85,6 +91,13 @@ public class Converter implements Runnable {
                 c.gridx++;
             }
         }
+        
+        c.gridx = 3;
+        c.gridy++;
+        c.insets = new Insets(10, 5, 10, 1);
+        c.gridwidth = 2;
+        
+        panel.add(new JButton(getPresetAction), c);
         
         return panel;
     }
@@ -169,18 +182,16 @@ public class Converter implements Runnable {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Map<String, String> m = comboRegistry.entrySet().stream().collect(
-                Collectors.toMap(entry -> entry.getKey().name(), entry -> (String)entry.getValue().getSelectedItem()));
             
-            leet.setText(
-                raw.getText()
-                    .toUpperCase()
-                    .chars()
-                    .mapToObj(c -> {
-                        String ch = String.valueOf((char)c);
-                        return m.computeIfAbsent(ch, i -> ch);
-                    })
-                    .collect(Collectors.joining()));
+            try {
+                List<Entry<Alphabet, JComboBox<String>>> l = comboRegistry.entrySet().stream().collect(Collectors.toList());
+                String[] searchList = l.stream().map(entry -> (String)entry.getKey().name()).toArray(String[]::new);
+                String[] replacementList = l.stream().map(entry -> (String)entry.getValue().getSelectedItem()).toArray(String[]::new);
+                leet.setText(StringUtils.replaceEach(raw.getText().toUpperCase(), searchList, replacementList));
+            } 
+            catch(Exception ex) {
+                JOptionPane.showMessageDialog(frame, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     };
     
@@ -189,14 +200,32 @@ public class Converter implements Runnable {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Map<String, String> m = comboRegistry.entrySet().stream().collect(
-                Collectors.toMap(entry -> (String)entry.getValue().getSelectedItem(), entry -> entry.getKey().name()));
+            try {
+                List<Entry<Alphabet, JComboBox<String>>> l = comboRegistry.entrySet().stream().collect(Collectors.toList());
+                String[] searchList = l.stream().map(entry -> (String)entry.getValue().getSelectedItem()).toArray(String[]::new);
+                String[] replacementList = l.stream().map(entry -> (String)entry.getKey().name()).toArray(String[]::new);
+                raw.setText(StringUtils.replaceEach(leet.getText().toUpperCase(), searchList, replacementList));
+            } 
+            catch(Exception ex) {
+                JOptionPane.showMessageDialog(frame, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    };
+    
+    private Action getPresetAction = new AbstractAction("Get Preset") {
+        private static final long serialVersionUID = -6822610601540723052L;
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String presetString = comboRegistry.entrySet().stream()
+                .filter(entry -> (entry.getValue().getSelectedIndex() > 0))
+                .map(entry -> String.join(",", entry.getKey().name(), String.valueOf(entry.getValue().getSelectedIndex())))
+                .collect(Collectors.joining(","));
             
-            String s = leet.getText().toUpperCase();
-            for(Map.Entry<String, String> me : m.entrySet()) 
-                s = s.replace(me.getKey(),  me.getValue());
-            
-            raw.setText(s);
+            JTextField tf = new JTextField(40);
+            tf.setEditable(false);
+            tf.setText(presetString);
+            JOptionPane.showMessageDialog(frame, tf, "Preset", JOptionPane.INFORMATION_MESSAGE);
         }
     };
 }
